@@ -134,6 +134,11 @@
     .modern-button.primary:hover { background: #2563eb; }
     .modern-button.secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border); }
     .modern-button.secondary:hover { background: var(--bg-hover); }
+    
+    .switch input:checked + .slider { background-color: #3b82f6; }
+    .switch input:checked + .slider:before { transform: translateX(14px); }
+    .slider { background-color: #4b5563; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
 
     .typing-indicator { display: flex; gap: 4px; padding: 4px 8px; align-items: center; justify-content: center; height: 24px; }
     .typing-indicator span { width: 6px; height: 6px; background-color: var(--text-secondary); border-radius: 50%; animation: typing 1.4s infinite both; }
@@ -173,6 +178,10 @@
     .segmented-control input:checked + label { background: #3b82f6; color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
     .effort-desc { font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.6; }
   </style>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
 </head>
 <body>
   <div class="sidebar-overlay" onclick="closeSidebarMobile()"></div>
@@ -188,16 +197,16 @@
       </div>
 
       <div class="top-actions" style="justify-content: center; margin-bottom: 20px;">
-        <button class="btn-icon" style="background: #ffffff; color: #000000; border: none;" title="گفت‌وگوی جدید" onclick="startNewSession()">
+        <button class="btn-icon" style="background: #ffffff; color: #000000; border: none;" title="گفت‌وگوی جدید" data-i18n-title="new_chat" onclick="startNewSession()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
-        <button class="btn-icon" title="به‌روزرسانی" onclick="loadSessions()">
+        <button class="btn-icon" title="به‌روزرسانی" data-i18n-title="refresh" onclick="loadSessions()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         </button>
-        <button class="btn-icon" title="آمار مصرف (Usage)" onclick="openUsageModal()">
+        <button class="btn-icon" title="آمار مصرف" data-i18n-title="usage_stats" onclick="openUsageModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
         </button>
-        <button class="btn-icon" title="تنظیمات ایجنت" onclick="openSettingsModal()">
+        <button class="btn-icon" title="تنظیمات ایجنت" data-i18n-title="settings" onclick="openSettingsModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
       </div>
@@ -222,15 +231,15 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
       <div class="header-title-container" onclick="toggleHeaderExpand()">
-        <div id="current-title">یک گفت‌وگو را انتخاب کنید</div>
-        <div class="header-hint">برای نمایش کامل/مخفی کردن کلیک کنید ⯆</div>
+        <div id="current-title"><span data-i18n="select_chat">یک گفت‌وگو را انتخاب کنید</span></div>
+        <div class="header-hint"><span data-i18n="header_hint">برای نمایش کامل/مخفی کردن کلیک کنید</span> ⯆</div>
       </div>
-      <div id="status-badge">آماده</div>
+      <div id="status-badge"><span data-i18n="status_ready">آماده</span></div>
     </div>
     <div id="messages"></div>
     <div id="input-container">
       <div class="input-box">
-        <textarea id="input-text" placeholder="پیام خود را بنویسید (Shift+Enter برای خط بعد)..." onkeydown="handleKey(event)" rows="1"></textarea>
+        <textarea id="input-text" dir="auto" data-i18n-placeholder="chat_placeholder" placeholder="پیام خود را بنویسید (Shift+Enter برای خط بعد)..." onkeydown="handleKey(event)" rows="1"></textarea>
         <button id="btn-send" onclick="sendPrompt()" ontouchstart="event.preventDefault(); sendPrompt();">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
         </button>
@@ -242,7 +251,7 @@
   <div id="usage-modal" class="modal">
     <div class="modal-content" style="width: 480px;">
       <div class="modal-header">
-        <h3>آمار مصرف (Usage Limits)</h3>
+        <h3 data-i18n="usage_limits">آمار مصرف (Usage Limits)</h3>
         <span class="close-modal" onclick="closeUsageModal()">&times;</span>
       </div>
       <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
@@ -306,24 +315,45 @@
   </div>
 
 
+  
+  <!-- Delete Modal -->
+  <div class="modal" id="delete-modal" onclick="if(event.target === this) closeDeleteModal()">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 style="color: var(--error); display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span data-i18n="delete_chat_title">حذف گفت‌وگو</span>
+        </h3>
+        <span class="close-modal" onclick="closeDeleteModal()">&times;</span>
+      </div>
+      <div style="padding: 20px;">
+        <p style="margin-top: 0; margin-bottom: 24px; font-size: 14px; color: var(--text-secondary);" data-i18n="delete_chat_confirm">آیا از حذف این گفت‌وگو کاملاً مطمئن هستید؟ این عمل غیرقابل بازگشت است.</p>
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button class="modern-button secondary" onclick="closeDeleteModal()" style="padding: 8px 16px; font-size: 13px;"><span data-i18n="cancel">لغو</span></button>
+          <button class="modern-button primary" onclick="submitDelete()" style="padding: 8px 16px; font-size: 13px; background: var(--error);"><span data-i18n="delete_btn">حذف کن</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings Modal -->
   <div id="settings-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>تنظیمات ایجنت</h3>
+        <h3 data-i18n="agent_settings">تنظیمات ایجنت</h3>
         <span class="close-modal" onclick="closeSettingsModal()">&times;</span>
       </div>
       <div class="modal-body">
         
         <div class="control-group">
-          <label class="control-label">خانواده مدل (AI Model)</label>
+          <label class="control-label"><span data-i18n="ai_model">خانواده مدل (AI Model)</span></label>
           <select id="model-select">
             <option value="inherit">Claude Opus 4.6 (Thinking) ⭐</option>
             <optgroup label="Google Gemini">
-                <option value="gemini-3.8-flash">Gemini 3.8 Flash (سریع)</option>
+                <option value="gemini-3.8-flash" data-i18n-option="gemini_flash">Gemini 3.8 Flash (سریع)</option>
                 <option value="gemini-3.7-flash">Gemini 3.7 Flash</option>
                 <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
-                <option value="gemini-3.1-pro">Gemini 3.1 Pro (هوشمند و دقیق)</option>
+                <option value="gemini-3.1-pro" data-i18n-option="gemini_pro">Gemini 3.1 Pro (هوشمند و دقیق)</option>
             </optgroup>
             <optgroup label="Anthropic Claude">
                 <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
@@ -335,8 +365,9 @@
           </select>
         </div>
         
+        
         <div class="control-group" id="effort-group">
-          <label class="control-label" style="margin-top: 8px;">میزان تفکر (Reasoning Effort)</label>
+          <label class="control-label" style="margin-top: 8px;"><span data-i18n="reasoning_effort">میزان تفکر (Reasoning Effort)</span></label>
           <div class="segmented-control">
             <input type="radio" name="effort" id="eff-low" value="low">
             <label for="eff-low">Low</label>
@@ -347,7 +378,40 @@
             <input type="radio" name="effort" id="eff-high" value="high">
             <label for="eff-high">High</label>
           </div>
-          <div class="effort-desc" id="effort-desc">تعادل بین سرعت و تفکر، عالی برای کارهای روزمره و برنامه‌نویسی.</div>
+          <div class="effort-desc" id="effort-desc" data-i18n="effort_medium_desc">تعادل بین سرعت و تفکر، عالی برای کارهای روزمره و برنامه‌نویسی.</div>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label" style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span data-i18n="use_proxy">استفاده از پروکسی (SOCKS5)</span>
+              <div id="proxy-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: transparent; transition: background-color 0.3s; box-shadow: 0 0 5px transparent;" title="وضعیت پروکسی"></div>
+            </div>
+            <label class="switch" style="position: relative; display: inline-block; width: 34px; height: 20px;">
+              <input type="checkbox" id="proxy-enable" onchange="toggleProxyInput()" style="opacity: 0; width: 0; height: 0;">
+              <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; transition: .4s; border-radius: 34px;"></span>
+            </label>
+          </label>
+          <div id="proxy-input-container" style="display: none; margin-top: 8px;">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="proxy-address" class="modern-input" placeholder="مثال: 127.0.0.1:10808" style="flex: 1; box-sizing: border-box; font-family: Consolas, monospace; direction: ltr; text-align: left;" >
+              <button id="proxy-test-btn" class="modern-button secondary" onclick="testProxy()" style="padding: 0 16px; font-size: 12px;"><span data-i18n="test_btn">تست</span></button>
+            </div>
+            <div id="proxy-test-msg" style="font-size: 11px; margin-top: 6px; color: var(--text-secondary); display: none;"></div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" data-i18n="ui_language">زبان رابط کاربری (UI Language)</label>
+          <select id="lang-select">
+            <option value="fa">فارسی (Persian)</option>
+            <option value="en">English (انگلیسی)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px;">
+          <button class="modern-button secondary" onclick="closeSettingsModal()" style="padding: 8px 16px; font-size: 13px;"><span data-i18n="cancel">لغو</span></button>
+          <button class="modern-button primary" id="save-settings-btn" onclick="saveSettingsAndClose()" style="padding: 8px 16px; font-size: 13px;"><span data-i18n="save">ذخیره</span></button>
         </div>
 
       </div>
@@ -358,22 +422,207 @@
   <div id="rename-modal" class="modal">
     <div class="modal-content" style="max-width: 400px;">
       <div class="modal-header">
-        <h3>تغییر نام گفت‌وگو</h3>
+        <h3 data-i18n="rename_chat">تغییر نام گفت‌وگو</h3>
         <span class="close-modal" onclick="closeRenameModal()">&times;</span>
       </div>
       <div class="modal-body">
         <div class="control-group" style="margin-bottom: 20px;">
-          <input type="text" id="rename-input" class="modern-input" placeholder="نام جدید..." style="width: 100%; box-sizing: border-box;" onkeypress="if(event.key==='Enter') submitRename()">
+          <input type="text" id="rename-input" class="modern-input" data-i18n-placeholder="new_name" placeholder="نام جدید..." style="width: 100%; box-sizing: border-box;" onkeypress="if(event.key==='Enter') submitRename()">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 12px;">
-          <button class="modern-button secondary" onclick="closeRenameModal()" style="padding: 8px 16px; font-size: 13px;">لغو</button>
-          <button class="modern-button primary" onclick="submitRename()" style="padding: 8px 16px; font-size: 13px;">ذخیره</button>
+          <button class="modern-button secondary" onclick="suggestTitle()" style="padding: 8px 16px; font-size: 13px;" title="پیشنهاد هوشمند"><span data-i18n="suggest">✨ پیشنهاد</span></button>
+          <button class="modern-button secondary" onclick="closeRenameModal()" style="padding: 8px 16px; font-size: 13px;"><span data-i18n="cancel">لغو</span></button>
+          <button class="modern-button primary" onclick="submitRename()" style="padding: 8px 16px; font-size: 13px;"><span data-i18n="save">ذخیره</span></button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+
+    const translations = {
+        en: {
+            new_chat: "New Chat",
+            refresh: "Refresh",
+            usage_stats: "Usage Limits",
+            settings: "Settings",
+            select_chat: "Select a Conversation",
+            header_hint: "Click to show/hide full ⯆",
+            status_ready: "Ready",
+            chat_placeholder: "Type your message (Shift+Enter for new line)...",
+            usage_limits: "Usage Limits",
+            agent_settings: "Agent Settings",
+            ui_language: "UI Language",
+            ai_model: "AI Model",
+            reasoning_effort: "Reasoning Effort",
+            effort_medium_desc: "Balance between speed and thought, perfect for daily tasks.",
+            use_proxy: "Use Proxy (SOCKS5)",
+            test_btn: "Test",
+            rename_chat: "Rename Conversation",
+            new_name: "New name...",
+            cancel: "Cancel",
+            save: "Save",
+            stop_btn: "Stop ⏹️",
+            suggest: "✨ Auto-Suggest",
+            gemini_flash: "Gemini 3.8 Flash (Fast)",
+            gemini_pro: "Gemini 3.1 Pro (Smart & Precise)"
+        },
+        fa: {
+            new_chat: "گفت‌وگوی جدید",
+            refresh: "به‌روزرسانی",
+            usage_stats: "آمار مصرف",
+            settings: "تنظیمات ایجنت",
+            select_chat: "یک گفت‌وگو را انتخاب کنید",
+            header_hint: "برای نمایش کامل/مخفی کردن کلیک کنید ⯆",
+            status_ready: "آماده",
+            chat_placeholder: "پیام خود را بنویسید (Shift+Enter برای خط بعد)...",
+            usage_limits: "آمار مصرف (Usage Limits)",
+            agent_settings: "تنظیمات ایجنت",
+            ui_language: "زبان رابط کاربری (UI Language)",
+            ai_model: "خانواده مدل (AI Model)",
+            reasoning_effort: "میزان تفکر (Reasoning Effort)",
+            effort_medium_desc: "تعادل بین سرعت و تفکر، عالی برای کارهای روزمره و برنامه‌نویسی.",
+            use_proxy: "استفاده از پروکسی (SOCKS5)",
+            test_btn: "تست",
+            rename_chat: "تغییر نام گفت‌وگو",
+            new_name: "نام جدید...",
+            cancel: "لغو",
+            save: "ذخیره",
+            stop_btn: "توقف ⏹️",
+            suggest: "✨ پیشنهاد",
+            gemini_flash: "Gemini 3.8 Flash (سریع)",
+            gemini_pro: "Gemini 3.1 Pro (هوشمند و دقیق)"
+        }
+    };
+
+    let currentLang = 'fa';
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[currentLang][key]) {
+                el.innerText = translations[currentLang][key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            if (translations[currentLang][key]) {
+                el.setAttribute('title', translations[currentLang][key]);
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[currentLang][key]) {
+                el.setAttribute('placeholder', translations[currentLang][key]);
+            }
+        });
+        document.querySelectorAll('[data-i18n-option]').forEach(el => {
+            const key = el.getAttribute('data-i18n-option');
+            if (translations[currentLang][key]) {
+                el.innerText = translations[currentLang][key];
+            }
+        });
+        
+        // Update effort desc dynamically on lang change
+        const currentEffort = document.querySelector('input[name="effort"]:checked');
+        if (currentEffort) {
+            const descEl = document.getElementById('effort-desc');
+            descEl.textContent = effortDescriptions[currentLang][currentEffort.value];
+        }
+        
+        if (currentLang === 'en') {
+            document.body.style.direction = 'ltr';
+            document.body.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+            // Specific overrides for LTR
+            document.querySelectorAll('.msg-time-inline').forEach(el => el.style.marginLeft = '0');
+            document.querySelectorAll('.msg-time-inline').forEach(el => el.style.marginRight = '8px');
+        } else {
+            document.body.style.direction = 'rtl';
+            document.body.style.fontFamily = "'IRANSans', system-ui, sans-serif";
+            document.querySelectorAll('.msg-time-inline').forEach(el => el.style.marginRight = '0');
+            document.querySelectorAll('.msg-time-inline').forEach(el => el.style.marginLeft = '8px');
+        }
+    }
+
+    
+    async function saveSettingsAndClose() {
+        const btn = document.getElementById('save-settings-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = '...';
+        }
+        
+        await pushSettings();
+        
+        currentLang = document.getElementById('lang-select').value;
+        applyTranslations();
+        
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span data-i18n="save">ذخیره</span>';
+            applyTranslations();
+        }
+        
+        document.getElementById('settings-modal').style.display = 'none';
+    }
+
+    
+    
+    // Backend settings sync
+    async function fetchSettings() {
+        try {
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+            
+            if (data.language) {
+                currentLang = data.language;
+                document.getElementById('lang-select').value = currentLang;
+                applyTranslations();
+            }
+            if (data.model) {
+                document.getElementById('model-select').value = data.model;
+                updateEffortVisibility();
+            }
+            if (data.effort) {
+                const rb = document.querySelector(`input[name="effort"][value="${data.effort}"]`);
+                if (rb) rb.checked = true;
+            }
+            if (data.proxy_enabled !== undefined) {
+                document.getElementById('proxy-enable').checked = data.proxy_enabled;
+                if(data.proxy_enabled) document.getElementById('proxy-input-container').style.display = 'block';
+            }
+            if (data.proxy_address) document.getElementById('proxy-address').value = data.proxy_address;
+            
+            applyTranslations();
+        } catch (e) {
+            console.error("Failed to load backend settings", e);
+            applyTranslations();
+        }
+    }
+    
+    async function pushSettings() {
+        const payload = {
+            language: document.getElementById('lang-select').value,
+            model: document.getElementById('model-select').value,
+            effort: document.querySelector('input[name="effort"]:checked')?.value || 'medium',
+            proxy_enabled: document.getElementById('proxy-enable').checked,
+            proxy_address: document.getElementById('proxy-address').value.trim()
+        };
+        try {
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+        } catch (e) { console.error("Failed to save settings", e); }
+    }
+    
+    // Override local save functions to use pushSettings
+    
+
+    
+    
+
     let activeSessionId = null;
     let autoScroll = true;
     
@@ -402,7 +651,9 @@
     const usageModal = document.getElementById("usage-modal");
 
     function openSettingsModal() { settingsModal.style.display = "flex"; }
-    function closeSettingsModal() { settingsModal.style.display = "none"; }
+    function closeSettingsModal() { 
+        settingsModal.style.display = "none"; 
+    }
     
     async function openUsageModal() { 
         usageModal.style.display = "flex"; 
@@ -472,15 +723,22 @@
     }
 
     const effortDescriptions = {
-        "low": "پاسخ‌های سریع و مستقیم، مناسب برای سوالات ساده.",
-        "medium": "تعادل بین سرعت و تفکر، عالی برای کارهای روزمره و برنامه‌نویسی.",
-        "high": "تفکر عمیق‌تر و پاسخ‌های دقیق‌تر، مناسب برای مسائل پیچیده."
+        fa: {
+            "low": "پاسخ‌های سریع و مستقیم، مناسب برای سوالات ساده.",
+            "medium": "تعادل بین سرعت و تفکر، عالی برای کارهای روزمره و برنامه‌نویسی.",
+            "high": "تفکر عمیق‌تر و پاسخ‌های دقیق‌تر، مناسب برای مسائل پیچیده."
+        },
+        en: {
+            "low": "Fast and direct answers, suitable for simple questions.",
+            "medium": "Balance between speed and reasoning, great for daily coding tasks.",
+            "high": "Deeper thinking and precise answers, suitable for complex problems."
+        }
     };
 
     const radios = document.querySelectorAll('input[name="effort"]');
     radios.forEach(r => {
         r.addEventListener('change', (e) => {
-            document.getElementById('effort-desc').textContent = effortDescriptions[e.target.value];
+            document.getElementById('effort-desc').textContent = effortDescriptions[currentLang][e.target.value];
         });
     });
 
@@ -498,8 +756,9 @@
     const modelSelect = document.getElementById("model-select");
     const effortGroup = document.getElementById("effort-group");
     
-    modelSelect.addEventListener("change", function() {
-        const allowed = modelEfforts[this.value] || [];
+    function updateEffortVisibility() {
+        const allowed = modelEfforts[modelSelect.value] || [];
+        const radios = document.querySelectorAll('input[name="effort"]');
         
         if (allowed.length === 0) {
             effortGroup.style.display = "none";
@@ -524,13 +783,88 @@
             
             if (!currentCheckedValid && firstVisible) {
                 firstVisible.checked = true;
-                document.getElementById('effort-desc').textContent = effortDescriptions[firstVisible.value];
+                document.getElementById('effort-desc').textContent = effortDescriptions[currentLang][firstVisible.value];
             }
         }
-    });
+    }
+    
+    modelSelect.addEventListener("change", updateEffortVisibility);
 
     // Run once on load to set initial state
-    modelSelect.dispatchEvent(new Event('change'));
+    updateEffortVisibility();
+
+    // Proxy Logic
+    function toggleProxyInput() {
+        const isEnabled = document.getElementById('proxy-enable').checked;
+        const container = document.getElementById('proxy-input-container');
+        const dot = document.getElementById('proxy-status-dot');
+        container.style.display = isEnabled ? 'block' : 'none';
+        if (!isEnabled) {
+            dot.style.backgroundColor = 'transparent';
+            dot.style.boxShadow = 'none';
+        }
+        
+        const input = document.getElementById('proxy-address');
+        if (isEnabled && !input.value) {
+            input.value = "socks5://127.0.0.1:10808";
+        }
+        
+    }
+    
+    
+
+    async function testProxy() {
+        const btn = document.getElementById('proxy-test-btn');
+        const msg = document.getElementById('proxy-test-msg');
+        const dot = document.getElementById('proxy-status-dot');
+        const proxy = document.getElementById('proxy-address').value.trim();
+        
+        if(!proxy) return;
+        
+        btn.disabled = true;
+        btn.innerText = '...';
+        msg.style.display = 'block';
+        msg.style.color = 'var(--text-secondary)';
+        msg.innerText = 'در حال بررسی ارتباط...';
+        
+        try {
+            const res = await fetch('/api/proxy_test', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({proxy: proxy})
+            });
+            const data = await res.json();
+            
+            if (data.status === 'red') {
+                dot.style.backgroundColor = '#ef4444';
+                dot.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.6)';
+                msg.style.color = '#ef4444';
+            } else if (data.status === 'yellow') {
+                dot.style.backgroundColor = '#f59e0b';
+                dot.style.boxShadow = '0 0 8px rgba(245, 158, 11, 0.6)';
+                msg.style.color = '#f59e0b';
+            } else if (data.status === 'green') {
+                dot.style.backgroundColor = '#10b981';
+                dot.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.6)';
+                msg.style.color = '#10b981';
+            }
+            msg.innerText = data.detail || 'اتصال برقرار شد.';
+            
+        } catch (e) {
+            dot.style.backgroundColor = '#ef4444';
+            dot.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.6)';
+            msg.style.color = '#ef4444';
+            msg.innerText = 'خطا در ارتباط با سرور محلی.';
+        }
+        
+        btn.disabled = false;
+        btn.innerText = 'تست';
+    }
+    
+    // Init proxy
+    document.getElementById('proxy-enable').checked = localStorage.getItem('agy_proxy_enabled') === 'true';
+    document.getElementById('proxy-address').value = localStorage.getItem('agy_proxy_address') || "socks5://127.0.0.1:10808";
+    if(document.getElementById('proxy-enable').checked) document.getElementById('proxy-input-container').style.display = 'block';
 
     const messagesEl = document.getElementById('messages');
     messagesEl.addEventListener('scroll', () => {
@@ -593,8 +927,11 @@
           <div class="chat-item-header">
             <span class="chat-title">${escapeHtml(s.title)}</span>
             <div class="chat-actions">
-              <button title="تغییر نام" onclick="renameSession('${s.id}', '${escapeHtml(s.title)}', event)">
+              <button title="تغییر نام" onclick="renameSession('${s.id}', '${escapeHtml(s.title).replace(/\n/g, ' ').replace(/\r/g, '').replace(/'/g, "\\'")}', event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              </button>
+              <button title="حذف چت" onclick="event.stopPropagation(); confirmDelete('${s.id}')" style="color: #ef4444; margin-right: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               </button>
             </div>
           </div>
@@ -615,7 +952,7 @@
       titleEl.textContent = data.title;
       titleEl.classList.remove('expanded');
       renderMessages(data.messages || []);
-      setStatus('آماده');
+      setStatus('<span data-i18n="status_ready">آماده</span>');
       autoScroll = true;
       scrollToBottom();
     }
@@ -626,6 +963,9 @@
       msgs.forEach(m => {
         appendMessage(m.role, m.text, m.created_at);
       });
+      if (typeof hljs !== 'undefined') {
+          document.querySelectorAll('pre code').forEach((block) => { hljs.highlightElement(block); });
+      }
       scrollToBottom();
     }
     
@@ -654,6 +994,7 @@
         return `<div class="msg-time-inline" data-tooltip="${hoverText}">
             ${hm}
             <span style="display:inline-block; width:13px; height:13px; border-radius:50%; border:1px solid currentColor; text-align:center; line-height:12px; font-style:italic; font-family:serif; font-size:10px; font-weight:bold; cursor:help; margin-left:4px; opacity:0.7;">i</span>
+            <span onclick="copyText(this.closest('.text-content').querySelector('.inner-text').innerText, this, '✅ کپی شد', '📋 کپی')" style="cursor:pointer; margin-left:8px; opacity:0.7; font-size: 10px; transition: 0.2s;">📋 کپی</span>
         </div>`;
     }
 
@@ -672,9 +1013,16 @@
         const textDiv = document.createElement('div');
         textDiv.className = 'text-content';
         if (text === null) {
-            textDiv.innerHTML = `<div class="inner-text"><div class="typing-indicator"><span></span><span></span><span></span></div></div>` + getTimeHtml(timeStr);
+            textDiv.innerHTML = `<div class="inner-text" dir="auto"><div class="typing-indicator"><span></span><span></span><span></span></div></div>` + getTimeHtml(timeStr);
         } else {
-            textDiv.innerHTML = `<div class="inner-text">${formatText(text)}</div>` + getTimeHtml(timeStr);
+            textDiv.innerHTML = `<div class="inner-text" dir="auto">${formatText(text)}</div>` + getTimeHtml(timeStr);
+        }
+        
+        if (role === 'user' && text !== null) {
+            const editHtml = `<span onclick="editMessage(this)" style="cursor:pointer; margin-left:8px; margin-right:8px; opacity:0.7; font-size: 10px; transition: 0.2s;" title="ویرایش">✏️</span>`;
+            textDiv.innerHTML = textDiv.innerHTML.replace('</div>`', editHtml + '</div>`'); // This injects before the closing div of msg-time-inline
+            // Wait, getTimeHtml returns `<div class="msg-time-inline"...>...</div>`. We can replace `</div>` at the end of textDiv.innerHTML.
+            textDiv.innerHTML = textDiv.innerHTML.replace(/<\/div>$/, editHtml + '</div>');
         }
         
         contentDiv.appendChild(textDiv);
@@ -694,7 +1042,10 @@
         
         // Remove just the tags for user requests but keep the content
         clean = clean.replace(/<USER_REQUEST>/gi, '').replace(/<\/USER_REQUEST>/gi, '');
-        clean = clean.replace(/<CONTEXT_SUMMARY>[\s\S]*?<\/CONTEXT_SUMMARY>/gi, ''); // hide checkpoint summaries
+        clean = clean.replace(/<CONTEXT_SUMMARY>([\s\S]*?)<\/CONTEXT_SUMMARY>/gi, function(match, p1) {
+            let summaryText = p1.replace(/\n/g, '<br>').replace(/#/g, '•');
+            return `<div style="background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); padding: 10px 14px; margin: 10px 0; border-radius: 6px; font-size: 12px; color: var(--text-secondary);"><strong style="color: var(--accent); display:block; margin-bottom:6px;">خلاصه تاریخچه قبلی:</strong>${summaryText}</div>`;
+        }); // hide checkpoint summaries
 
         let lines = clean.split('\n');
         let processedLines = lines.map(line => {
@@ -716,8 +1067,34 @@
         });
         clean = processedLines.join('\n');
         clean = clean.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
+        clean = clean.replace(/warning: conversation "[^"]+" not found\n?/gi, '');
         
-        let html = escapeHtml(clean.trim());
+        let parts = clean.trim().split('```');
+        let html = '';
+        for (let i = 0; i < parts.length; i++) {
+            if (i % 2 === 0) {
+                let normalText = escapeHtml(parts[i]);
+                normalText = normalText.replace(/(https?:\/\/[^\s&<]+)/g, '<a href="$1" target="_blank" style="color: #3b82f6; text-decoration: underline; direction: ltr; display: inline-block;">$1</a>');
+                html += normalText;
+            } else {
+                let codeContent = parts[i];
+                let lines = codeContent.split('\n');
+                let lang = lines[0].trim();
+                if (lines.length > 1) {
+                    codeContent = lines.slice(1).join('\n');
+                } else {
+                    lang = '';
+                }
+                
+                html += `<div class="code-block" style="position: relative; background: #1e1e1e; border-radius: 8px; margin: 12px 0; overflow: hidden; direction: ltr; text-align: left; border: 1px solid var(--border);">
+    <div style="background: rgba(0,0,0,0.4); color: #aaa; padding: 6px 12px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-family: system-ui;">
+        <span style="font-weight: 600;">${escapeHtml(lang) || 'CODE'}</span>
+        <button onclick="copyCodeBlock(this)" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; transition: 0.2s;">Copy</button>
+    </div>
+    <pre style="margin: 0; padding: 16px; overflow-x: auto; font-family: Consolas, monospace; font-size: 13px; color: #e5e5e5; line-height: 1.5; white-space: pre-wrap; word-break: break-all;"><code class="language-${escapeHtml(lang)}">${escapeHtml(codeContent)}</code></pre>
+</div>`;
+            }
+        }
         
         // Parse <thinking> tags
         html = html.replace(/&lt;thinking&gt;([\s\S]*?)(?:&lt;\/thinking&gt;|$)/gi, function(match, p1) {
@@ -781,11 +1158,123 @@
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({title: newTitle})
       });
+      await fetchSettings();
       await loadSessions();
       if (activeSessionId === id) {
         const titleEl = document.getElementById('current-title');
         titleEl.textContent = newTitle;
       }
+    }
+
+    
+    
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try { document.execCommand('copy'); } catch (err) { }
+        document.body.removeChild(textArea);
+    }
+    
+    function copyText(text, btn, successMsg, originalMsg) {
+        if (!navigator.clipboard) {
+            fallbackCopyTextToClipboard(text);
+            btn.innerText = successMsg;
+            setTimeout(() => btn.innerText = originalMsg, 2000);
+            return;
+        }
+        navigator.clipboard.writeText(text).then(() => {
+            btn.innerText = successMsg;
+            setTimeout(() => btn.innerText = originalMsg, 2000);
+        }).catch(err => {
+            fallbackCopyTextToClipboard(text);
+            btn.innerText = successMsg;
+            setTimeout(() => btn.innerText = originalMsg, 2000);
+        });
+    }
+
+    function copyCodeBlock(btn) {
+        const code = btn.closest('.code-block').querySelector('code').innerText;
+        let originalMsg = btn.innerText;
+        copyText(code, btn, 'Copied!', originalMsg);
+    }
+
+    async function stopGeneration() {
+        if (!activeSessionId) return;
+        try {
+            await fetch('/api/stop', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({session_id: activeSessionId})
+            });
+        } catch(e) {}
+    }
+
+    
+    let sessionToDelete = null;
+
+    function confirmDelete(id) {
+        sessionToDelete = id;
+        document.getElementById('delete-modal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-modal').style.display = 'none';
+        sessionToDelete = null;
+    }
+
+    async function submitDelete() {
+        if (!sessionToDelete) return;
+        const id = sessionToDelete;
+        closeDeleteModal();
+        await fetch(`/api/sessions/${id}/delete`, {method: 'POST'});
+        if (activeSessionId === id) startNewSession();
+        else loadSessions();
+    }
+
+    async function deleteSession(id) {
+        if (!confirm("آیا از حذف این چت مطمئن هستید؟ / Are you sure you want to delete this chat?")) return;
+        await fetch(`/api/sessions/${id}/delete`, {method: 'POST'});
+        if (activeSessionId === id) startNewSession();
+        else loadSessions();
+    }
+
+    async function suggestTitle() {
+        if (!renameSessionId) return;
+        const input = document.getElementById('rename-input');
+        const btn = document.querySelector('button[onclick="suggestTitle()"]');
+        const oldBtnText = btn.innerHTML;
+        
+        input.value = "در حال تفکر... / Thinking...";
+        input.disabled = true;
+        btn.innerHTML = `<span class="typing-indicator" style="height:10px; padding:0;"><span></span><span></span><span></span></span>`;
+        btn.disabled = true;
+        
+        try {
+            const res = await fetch(`/api/sessions/${renameSessionId}/suggest_title`, {method: 'POST'});
+            const data = await res.json();
+            if (data.title) input.value = data.title;
+            else input.value = renameOldTitle;
+        } catch(e) {
+            input.value = renameOldTitle;
+        }
+        input.disabled = false;
+        btn.innerHTML = oldBtnText;
+        btn.disabled = false;
+    }
+    
+    function editMessage(btn) {
+        const text = btn.closest('.text-content').querySelector('.inner-text').innerText;
+        const input = document.getElementById('input-text');
+        input.value = text;
+        input.style.height = 'auto';
+        input.style.height = (input.scrollHeight) + 'px';
+        input.focus();
     }
 
     function startNewSession() {
@@ -812,13 +1301,20 @@
       input.value = '';
       input.style.height = 'auto';
       const sendBtn = document.getElementById('btn-send');
-      sendBtn.disabled = true;
+      const stopBtn = document.getElementById('btn-stop');
+      sendBtn.style.display = 'none';
+      stopBtn.style.display = 'block';
       setStatus('در حال اجرا...');
 
       const nowStr = new Date().toISOString();
       appendMessage('user', text, nowStr);
       autoScroll = true;
       scrollToBottom();
+
+      let proxy = null;
+      if (document.getElementById('proxy-enable').checked) {
+          proxy = document.getElementById('proxy-address').value.trim();
+      }
 
       try {
         const res = await fetch('/api/chat', {
@@ -828,7 +1324,8 @@
             prompt: text,
             session_id: activeSessionId,
             model: model,
-            effort: effort
+            effort: effort,
+            proxy: proxy
           })
         });
         
@@ -861,7 +1358,7 @@
             buffer += chunk;
             let formatted = formatText(buffer);
             if (formatted) {
-                textDiv.innerHTML = `<div class="inner-text">${formatted}</div>` + getTimeHtml(nowStr);
+                textDiv.innerHTML = `<div class="inner-text" dir="auto">${formatted}</div>` + getTimeHtml(nowStr);
             }
             scrollToBottom();
         }
@@ -870,14 +1367,21 @@
         console.error(err);
         alert('خطا در ارتباط با سرور.');
       } finally {
+        const sendBtn = document.getElementById('btn-send');
+        const stopBtn = document.getElementById('btn-stop');
+        sendBtn.style.display = 'block';
+        stopBtn.style.display = 'none';
         sendBtn.disabled = false;
-        setStatus('آماده');
+        setStatus('<span data-i18n="status_ready">آماده</span>');
+        if (typeof hljs !== 'undefined') {
+            document.querySelectorAll('pre code').forEach((block) => { hljs.highlightElement(block); });
+        }
         loadSessions();
       }
     }
 
     function setStatus(text) {
-      document.getElementById('status-badge').textContent = text;
+      document.getElementById('status-badge').innerHTML = text;
     }
 
     function handleKey(e) {
@@ -934,6 +1438,7 @@
         inputEl.placeholder = "پیام خود را بنویسید (Shift+Enter برای خط بعد)...";
       }
       
+      await fetchSettings();
       await loadSessions();
       // On initial load, if no chat is selected and we are on mobile, open the sidebar automatically
       if (!activeSessionId && window.innerWidth <= 1024) {

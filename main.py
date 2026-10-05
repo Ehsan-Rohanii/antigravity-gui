@@ -1,9 +1,14 @@
 import http.server
-import json
+
 import os
+import json
+import subprocess
+import shutil
+import uuid
+
 import pty
 import select
-import shutil
+
 import subprocess
 import urllib.parse
 import urllib.request
@@ -100,16 +105,19 @@ def get_usage_data():
         proc = subprocess.run([CLI_BIN, "-p", "/usage"], capture_output=True, text=True, timeout=10)
         lines = proc.stdout.strip().split("\n")
         
+        import re
         for line in lines:
             line = line.strip().replace("\r", "")
             if not line or "Limit Remaining" not in line: continue
             
-            group = line[:30].lower()
-            period = line[30:55].lower() if len(line) > 55 else ""
-            rest = line[55:].strip()
-            parts = rest.split()
-            percent = parts[0].replace("%", "").strip() if parts else "0"
-            reset_time = " ".join(parts[1:]) if len(parts) > 1 else ""
+            group = line.lower()
+            period = line.lower()
+            
+            pct_match = re.search(r'(\d+)%', line)
+            percent = pct_match.group(1) if pct_match else "0"
+            
+            date_match = re.search(r'(\d{4}-\d{2}-\d{2}.*)', line)
+            reset_time = date_match.group(1).strip() if date_match else ""
             
             if "gemini" in group and "weekly" in period:
                 usage["gemini_weekly"] = percent
@@ -152,6 +160,18 @@ def get_user_info():
     
     return {"email": email, "tier": tier}
 
+def remove_from_history(cid):
+    if not HISTORY_FILE.exists(): return
+    try:
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            for line in lines:
+                if f'"{cid}"' not in line:
+                    f.write(line)
+    except Exception:
+        pass
+
 def load_custom_titles():
     if TITLES_FILE.exists():
         try:
@@ -168,6 +188,20 @@ def save_custom_title(cid, new_title):
     with open(TITLES_FILE, "w", encoding="utf-8") as f:
         json.dump(titles, f, ensure_ascii=False, indent=2)
 
+
+def delayed_cleanup(temp_id):
+    import time, shutil, threading
+    def _cleanup():
+        time.sleep(5)
+        temp_dir = BRAIN_DIR / temp_id
+        if temp_dir.exists():
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception:
+                pass
+        remove_from_history(temp_id)
+    threading.Thread(target=_cleanup, daemon=True).start()
+
 def get_antigravity_sessions():
     custom_titles = load_custom_titles()
     sessions = {}
@@ -181,7 +215,7 @@ def get_antigravity_sessions():
                     try:
                         record = json.loads(line)
                         cid = record.get("conversationId")
-                        if not cid: continue
+                        if not cid or cid.startswith("temp-"): continue
                         
                         ts = record.get("timestamp", 0) / 1000.0
                         if cid not in sessions:
@@ -308,6 +342,8 @@ def load_conversation_messages(cid):
 # ---------------------------------------------------------
 # HTTP Request Handler
 # ---------------------------------------------------------
+active_processes = {}
+
 class AppHandler(http.server.BaseHTTPRequestHandler):
     def _send_json(self, data, status=200):
         self.send_response(status)
@@ -359,6 +395,23 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
         elif url.path == "/api/user":
             self._send_json(get_user_info())
             
+        elif url.path == "/api/settings":
+            settings_path = BRAIN_DIR.parent / "ui_settings.json"
+            settings = {
+                "language": "fa",
+                "model": "gemini-3.1-pro",
+                "effort": "medium",
+                "proxy_enabled": False,
+                "proxy_address": "socks5://127.0.0.1:10808"
+            }
+            if settings_path.exists():
+                try:
+                    with open(settings_path, "r", encoding="utf-8") as f:
+                        settings.update(json.load(f))
+                except Exception:
+                    pass
+            self._send_json(settings)
+
         elif url.path == "/api/usage":
             self._send_json(get_usage_data())
             
@@ -380,6 +433,48 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length).decode("utf-8")) if length > 0 else {}
 
+        if url.path.endswith("/delete"):
+            cid = url.path.split("/")[-2]
+            target_dir = BRAIN_DIR / cid
+            if target_dir.exists():
+                
+                shutil.rmtree(target_dir)
+            titles = load_custom_titles()
+            if cid in titles:
+                del titles[cid]
+                with open(BRAIN_DIR.parent / "ui_titles.json", "w") as f:
+                    json.dump(titles, f)
+            self._send_json({"success": True})
+            return
+
+        if url.path.endswith("/suggest_title"):
+            cid = url.path.split("/")[-2]
+            msgs = load_conversation_messages(cid)
+            prompt = "با توجه به پیام‌های زیر، یک عنوان بسیار کوتاه و جذاب (نهایتا ۳ تا ۴ کلمه) برای این چت پیشنهاد بده. فقط و فقط خود عنوان را بنویس و هیچ علامت، گیومه یا توضیح اضافه‌ای نده:\n\n"
+            for m in msgs[-10:]:
+                prompt += f"{m['role']}: {m['text'][:150]}\n"
+            
+            #
+            
+            temp_id = "temp-" + str(uuid.uuid4())
+            proc = subprocess.run([CLI_BIN, "--dangerously-skip-permissions", "--model", "gemini-3.8-flash-low", "--conversation", temp_id, "-p", prompt], capture_output=True, text=True)
+            suggested = proc.stdout.strip().replace('"', '').replace('\"', '')
+            
+            delayed_cleanup(temp_id)
+                
+            self._send_json({"title": suggested})
+            return
+
+        if url.path == "/api/stop":
+            session_id = body.get("session_id")
+            if session_id in active_processes:
+                try:
+                    active_processes[session_id].terminate()
+                except Exception:
+                    pass
+            self._send_json({"success": True})
+            return
+
         if url.path.endswith("/rename"):
             cid = url.path.split("/")[-2]
             new_title = body.get("title", "").strip()
@@ -389,11 +484,62 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
             else:
                 self._send_json({"error": "عنوان نامعتبر است"}, 400)
 
+        elif url.path == "/api/settings":
+            settings_path = BRAIN_DIR.parent / "ui_settings.json"
+            settings = {
+                "language": "fa",
+                "model": "gemini-3.1-pro",
+                "effort": "medium",
+                "proxy_enabled": False,
+                "proxy_address": "socks5://127.0.0.1:10808"
+            }
+            if settings_path.exists():
+                try:
+                    with open(settings_path, "r", encoding="utf-8") as f:
+                        settings.update(json.load(f))
+                except Exception:
+                    pass
+            
+            # update from body
+            if "language" in body: settings["language"] = body["language"]
+            if "model" in body: settings["model"] = body["model"]
+            if "effort" in body: settings["effort"] = body["effort"]
+            if "proxy_enabled" in body: settings["proxy_enabled"] = bool(body["proxy_enabled"])
+            if "proxy_address" in body: settings["proxy_address"] = body["proxy_address"]
+            
+            with open(settings_path, "w", encoding="utf-8") as f:
+                json.dump(settings, f, ensure_ascii=False, indent=2)
+            
+            self._send_json({"success": True, "settings": settings})
+
+        elif url.path == "/api/proxy_test":
+            proxy = body.get("proxy", "").strip()
+            if not proxy:
+                self._send_json({"status": "red", "detail": "آدرس پروکسی وارد نشده است."})
+                return
+            
+            # 1. Test Proxy Connectivity
+            proc1 = subprocess.run(["curl", "-s", "-x", proxy, "-m", "5", "http://gstatic.com/generate_204"], capture_output=True)
+            if proc1.returncode != 0:
+                self._send_json({"status": "red", "detail": "ارتباط با پروکسی برقرار نشد. (Time out / Refused)"})
+                return
+            
+            # 2. Test Antigravity Servers (Codeium)
+            proc2 = subprocess.run(["curl", "-s", "-I", "-x", proxy, "-m", "7", "https://server.codeium.com"], capture_output=True, text=True)
+            out = proc2.stdout + proc2.stderr
+            if "403" in out or "Forbidden" in out or "error code: 1020" in out.lower():
+                self._send_json({"status": "yellow", "detail": "پروکسی وصل است اما توسط سرورهای هوش‌مصنوعی بلاک شده (Error 403)."})
+            elif proc2.returncode == 0:
+                self._send_json({"status": "green", "detail": "پروکسی و سرورهای آنتی‌گرویتی کاملاً در دسترس هستند."})
+            else:
+                self._send_json({"status": "yellow", "detail": "پروکسی وصل است اما ارتباط با سرورهای هوش‌مصنوعی تایم‌اوت شد."})
+
         elif url.path == "/api/chat":
             prompt = body.get("prompt", "").strip()
             session_id = body.get("session_id")
             model = body.get("model")
             effort = body.get("effort")
+            proxy = body.get("proxy")
 
             self.send_response(200)
             self.send_header("Content-Type", "text/plain; charset=utf-8")
@@ -416,6 +562,10 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
 
             env = os.environ.copy()
             env["FORCE_COLOR"] = "1"
+            if proxy:
+                env["HTTP_PROXY"] = proxy
+                env["HTTPS_PROXY"] = proxy
+                env["ALL_PROXY"] = proxy
             
             try:
                 master, slave = pty.openpty()
@@ -427,6 +577,7 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
                     close_fds=True,
                     env=env
                 )
+                active_processes[session_id] = proc
                 os.close(slave)
 
                 while True:

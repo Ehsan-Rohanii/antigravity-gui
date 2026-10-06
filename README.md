@@ -32,10 +32,10 @@ A sleek, lightweight, and modern Web GUI for the **Google Antigravity CLI (`agy`
 
 ```mermaid
 graph TD
-    User([Browser Client / Mobile]) <-->|HTTP / Streaming SSE| WebServer[Python Web Server (main.py)]
-    WebServer <-->|Subprocess / CLI| AGY[Antigravity CLI (agy)]
-    AGY <-->|gRPC / IPC| LS[Antigravity Language Server]
-    WebServer <-->|Read / Write| Storage[(Local Storage ~/.gemini/antigravity-cli)]
+    User(["Browser Client / Mobile"]) <-->|HTTP / Streaming SSE| WebServer["Python Web Server (main.py)"]
+    WebServer <-->|Subprocess / CLI| AGY["Antigravity CLI (agy)"]
+    AGY <-->|gRPC / IPC| LS["Antigravity Language Server"]
+    WebServer <-->|Read / Write| Storage[("Local Storage ~/.gemini/antigravity-cli")]
 ```
 
 ---

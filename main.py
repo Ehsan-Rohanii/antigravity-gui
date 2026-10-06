@@ -534,6 +534,12 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
             else:
                 self._send_json({"status": "yellow", "detail": "پروکسی وصل است اما ارتباط با سرورهای هوش‌مصنوعی تایم‌اوت شد."})
 
+        elif url.path == "/api/log":
+            err = body.get("error", "")
+            print(f"\n\n=== JS ERROR LOG ===\n{err}\n====================\n\n")
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"ok")
         elif url.path == "/api/chat":
             prompt = body.get("prompt", "").strip()
             session_id = body.get("session_id")

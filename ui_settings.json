@@ -1,0 +1,7 @@
+{
+  "language": "en",
+  "model": "gemini-3.8-flash",
+  "effort": "low",
+  "proxy_enabled": false,
+  "proxy_address": ""
+}

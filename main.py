@@ -437,13 +437,13 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
             cid = url.path.split("/")[-2]
             target_dir = BRAIN_DIR / cid
             if target_dir.exists():
-                
                 shutil.rmtree(target_dir)
+            remove_from_history(cid)
             titles = load_custom_titles()
             if cid in titles:
                 del titles[cid]
-                with open(BRAIN_DIR.parent / "ui_titles.json", "w") as f:
-                    json.dump(titles, f)
+                with open(TITLES_FILE, "w", encoding="utf-8") as f:
+                    json.dump(titles, f, ensure_ascii=False, indent=2)
             self._send_json({"success": True})
             return
 
@@ -552,14 +552,12 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
             self.send_header("Connection", "close")
             self.end_headers()
 
-            if not session_id:
-                session_id = str(uuid.uuid4())
+            is_new_session = not session_id or not (BRAIN_DIR / session_id).exists()
+            existing_dirs = set(p.name for p in BRAIN_DIR.iterdir() if p.is_dir()) if BRAIN_DIR.exists() else set()
 
-            meta = json.dumps({"session_id": session_id}) + "\n"
-            self.wfile.write(meta.encode("utf-8"))
-            self.wfile.flush()
-
-            cmd = [CLI_BIN, "--dangerously-skip-permissions", "--conversation", session_id]
+            cmd = [CLI_BIN, "--dangerously-skip-permissions"]
+            if not is_new_session:
+                cmd += ["--conversation", session_id]
             if model and model != "inherit":
                 cmd += ["--model", model]
             if effort:
@@ -583,8 +581,24 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
                     close_fds=True,
                     env=env
                 )
-                active_processes[session_id] = proc
                 os.close(slave)
+
+                real_session_id = session_id
+                if is_new_session:
+                    import time
+                    for _ in range(60):
+                        if BRAIN_DIR.exists():
+                            new_dirs = set(p.name for p in BRAIN_DIR.iterdir() if p.is_dir()) - existing_dirs
+                            if new_dirs:
+                                real_session_id = next(iter(new_dirs))
+                                break
+                        time.sleep(0.05)
+
+                if real_session_id:
+                    active_processes[real_session_id] = proc
+                    meta = json.dumps({"session_id": real_session_id}) + "\n"
+                    self.wfile.write(meta.encode("utf-8"))
+                    self.wfile.flush()
 
                 while True:
                     r, _, _ = select.select([master], [], [], 0.1)
